@@ -1,6 +1,7 @@
 # starting the project, interaction with user inputs, printing the cli
 import habit
 import habit_manager
+import db
 
 def main():
     pass
@@ -13,3 +14,5 @@ if __name__ == '__main__':
     habit4 = habit.Habit(4, "Name4", "asdasd")
     habit_Manager = habit_manager.HabitManager([habit1, habit2, habit3, habit4])
     print(habit_Manager)
+    db.create_tables()
+    db.close_db()
