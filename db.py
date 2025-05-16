@@ -3,7 +3,7 @@ import sqlite3
 def init_db():
     pass
 
-def get_cursor(name="main.db"):
+def get_cursor(name="test.db"):
     db = sqlite3.connect(name)
     return db, db.cursor()
 
@@ -17,7 +17,8 @@ def create_tables():
     cur.execute("""CREATE TABLE IF NOT EXISTS habit (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        period TEXT NOT NULL,
+        period INT NOT NULL,
+        last_completed NOT NULL DEFAULT (DATE('now')),
         created_date TEXT NOT NULL DEFAULT (DATE('now')))""")
 
     cur.execute("""CREATE TABLE IF NOT EXISTS streak (
