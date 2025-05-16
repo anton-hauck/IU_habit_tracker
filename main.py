@@ -2,17 +2,32 @@
 import habit
 import habit_manager
 import db
+import sys
+
 
 def main():
-    pass
+    db.create_tables()
+    habitManager = habit_manager.HabitManager()
+    '''
+    habitManager.create_habit("Sport", "Weekly")
+    habitManager.create_habit("Call Mama", "Daily")
+    habitManager.create_habit("Car wash", "Monthly")
+    habitManager.delete_habit(1)
+    habitManager.habits[0].complete()
+    habitManager.habits[2].complete()
+    habitManager.habits[1].complete()
+    habitManager.habits[0].complete()
+    habitManager.habits[2].complete()
+    habitManager.habits[2].complete()
+    '''
+
+    habitManager.close_db()
+    db.close_db()
 
 if __name__ == '__main__':
-    main()
-    habit1 = habit.Habit(1, "Name1", "asdasd")
-    habit2 = habit.Habit(2, "Name2", "asdasd")
-    habit3 = habit.Habit(3, "Name3", "asdasd")
-    habit4 = habit.Habit(4, "Name4", "asdasd")
-    habit_Manager = habit_manager.HabitManager([habit1, habit2, habit3, habit4])
-    print(habit_Manager)
-    db.create_tables()
-    db.close_db()
+    if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
+        print("test")
+    elif len(sys.argv) > 1 and sys.argv[1].lower() != "test":
+        print("There was a typo in your argument")
+    else:
+        main()

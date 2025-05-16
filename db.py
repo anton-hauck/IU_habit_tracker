@@ -1,5 +1,4 @@
 import sqlite3
-from datetime import date
 
 def init_db():
     pass
@@ -19,19 +18,18 @@ def create_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         period TEXT NOT NULL,
-        created_date TEXT NOT NULL)""")
+        created_date TEXT NOT NULL DEFAULT (DATE('now')))""")
 
     cur.execute("""CREATE TABLE IF NOT EXISTS streak (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        habit_id INTEGER NOT NULL,
-        longest_streak INTEGER NOT NULL,
-        current_streak INTEGER NOT NULL,
+        habit_id INTEGER PRIMARY KEY,
+        longest_streak INTEGER NOT NULL DEFAULT 0,
+        current_streak INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
     cur.execute("""CREATE TABLE IF NOT EXISTS completed (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         habit_id INTEGER NOT NULL,
-        completed_date TEXT NOT NULL,
+        completed_date TEXT NOT NULL DEFAULT (DATE('now')),
         FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
     db.commit()
