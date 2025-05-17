@@ -29,8 +29,7 @@ def main():
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
-        test_db.create_tables()
-        test_db.insert_test_data()
+        test_db.create_test_tables()
         habitManager = habit_manager.HabitManager()
         print(habitManager)
         print(habitManager.list_open_habits())
