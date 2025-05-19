@@ -1,14 +1,15 @@
-from db import get_cursor
+from db import db_manager
 from datetime import datetime, timedelta
 
 class Habit:
-    def __init__(self, id: int, name: str, period: int, last_completed: str, open: bool=True):
+    def __init__(self, id: int, name: str, period: int, last_completed: str, db_manager, open: bool=True):
         self.id = id
         self.name = name
         self.period = period
         self.open = open
         self.last_completed = last_completed
-        self.db, self.cur = get_cursor()
+        self.db_manager = db_manager
+        self.db, self.cur = db_manager.get_cursor()
 
     def complete(self):
         self.cur.execute("INSERT INTO completed (habit_id) VALUES (?)", (self.id,)) # "self.id," because a tupel is expected

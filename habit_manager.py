@@ -1,17 +1,17 @@
 from habit import Habit
-from db import get_cursor
 
-class HabitManager:
-    def __init__(self):
+class habit_manager_class:
+    def __init__(self, db_manager):
+        self.db_manager = db_manager
+        self.db, self.cur = db_manager.get_cursor()
         self.habits = []
-        self.db, self.cur = get_cursor()
         self.init_habits()
 
     def init_habits(self):
         self.cur.execute("SELECT id, name, period, last_completed FROM habit")
         rows = self.cur.fetchall()
         for row in rows:
-            self.habits.append(Habit(row[0], row[1], row[2], row[3]))
+            self.habits.append(Habit(row[0], row[1], row[2], row[3], db_manager=self.db_manager))
         for habit in self.habits:
             habit.is_open()
 

@@ -3,12 +3,9 @@ import habit
 import habit_manager
 import db
 import sys
-import test_db
 
 
 def main():
-    db.create_tables()
-    habitManager = habit_manager.HabitManager()
     '''
     habitManager.create_habit("Sport", 7)
     habitManager.create_habit("Call Mama", 1)
@@ -21,21 +18,23 @@ def main():
     habitManager.habits[2].complete()
     habitManager.delete_habit(1)
     '''
-    print(habitManager.get_longest_streaks())
-    print(habitManager.list_habits_by_periodically())
+    print(habit_manager_object.get_longest_streaks())
+    print(habit_manager_object.list_habits_by_periodically())
 
-    habitManager.close_db()
-    db.close_db()
+    habit_manager_object.close_db()
+    db_manager.close_db()
 
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1].lower() == "test":
-        test_db.create_test_tables()
-        habitManager = habit_manager.HabitManager()
-        print(habitManager)
-        print(habitManager.list_open_habits())
-        habitManager.close_db()
-        db.close_db()
+        db_manager = db.db_manager("test.db", test_environment=True)
+        habit_manager_object = habit_manager.habit_manager_class(db_manager)
+        main()
     elif len(sys.argv) > 1 and sys.argv[1].lower() != "test":
         print("There was a typo in your argument")
     else:
+        db_manager = db.db_manager()
+        # dependency injection of the database manager to the habit manager as an object.
+        # Now the database initialised in the db_manager class can be used across the habit_manager
+        # and habit class
+        habit_manager_object = habit_manager.habit_manager_class(db_manager)
         main()
