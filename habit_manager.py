@@ -12,8 +12,6 @@ class habit_manager_class:
         rows = self.cur.fetchall()
         for row in rows:
             self.habits.append(Habit(row[0], row[1], row[2], row[3], db_manager=self.db_manager))
-        for habit in self.habits:
-            habit.is_open()
 
     # Creating a habit by inserting name and period into the habit table.
     # The creation date is added automatically as the current date.
@@ -50,11 +48,8 @@ class habit_manager_class:
     def get_longest_streaks(self):
         return list(map(lambda h: [h.name, h.get_longest_streak()], self.habits))
 
-    def save_to_db(self):
-        pass
-
-    def delete_from_db(self):
-        pass
+    def get_current_streaks(self):
+        return list(map(lambda h: [h.name, h.get_current_streak()], self.habits))
 
     def close_db(self):
         self.db.close()

@@ -10,10 +10,17 @@ class Habit:
         self.last_completed = last_completed
         self.db_manager = db_manager
         self.db, self.cur = db_manager.get_cursor()
+        self.is_open()
 
     def complete(self):
         self.cur.execute("INSERT INTO completed (habit_id) VALUES (?)", (self.id,)) # "self.id," because a tupel is expected
+        self.cur.execute("UPDATE habit SET last_completed = ? WHERE id = ?", (datetime.today().date(), self.id,))
         self.db.commit()
+        if self.open:
+            self.cur.execute("UPDATE streak SET current_streak = current_streak + 1 WHERE habit_id = ?", (self.id,))
+            self.db.commit()
+            self.update_longest_streaks()
+            self.open = False
 
 
     def broken(self):
@@ -35,6 +42,10 @@ class Habit:
 
         self.open = last_completed_period_cycle < current_period_cycle
 
+        # is today past the last expected deadline for completion
+        if last + timedelta(days=self.period) < datetime.today().date():
+            self.broken()
+
     def get_current_streak(self):
         self.cur.execute("SELECT current_streak FROM streak WHERE habit_id = ?", (self.id,))
         self.db.commit()
@@ -44,6 +55,11 @@ class Habit:
         self.cur.execute("SELECT longest_streak FROM streak WHERE habit_id = ?", (self.id,))
         self.db.commit()
         return self.cur.fetchone()[0]
+
+    def update_longest_streaks(self):
+        if self.get_current_streak() > self.get_longest_streak():
+            self.cur.execute("UPDATE streak SET longest_streak = ? WHERE habit_id = ?", (self.get_current_streak(), self.id,))
+            self.db.commit()
 
 
     def __repr__(self):

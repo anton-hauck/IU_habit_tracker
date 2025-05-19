@@ -6,6 +6,19 @@ import sys
 
 
 def main():
+    #print("List open habits")
+    #print(habit_manager_object.list_open_habits())
+    #print("Longest streaks")
+    #print(habit_manager_object.get_longest_streaks())
+    #print(habit_manager_object.list_habits())
+    #print("Open habits")
+    #print(habit_manager_object.list_open_habits())
+    #print("Current streaks")
+    #print(habit_manager_object.get_current_streaks())
+    #print("Longest streaks")
+    #print(habit_manager_object.get_longest_streaks())
+    habit_manager_object.habits[1].complete()
+    habit_manager_object.habits[0].complete()
     '''
     habitManager.create_habit("Sport", 7)
     habitManager.create_habit("Call Mama", 1)
@@ -18,9 +31,6 @@ def main():
     habitManager.habits[2].complete()
     habitManager.delete_habit(1)
     '''
-    print(habit_manager_object.get_longest_streaks())
-    print(habit_manager_object.list_habits_by_periodically())
-
     habit_manager_object.close_db()
     db_manager.close_db()
 
