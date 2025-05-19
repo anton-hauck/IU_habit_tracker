@@ -5,6 +5,7 @@ class db_manager:
     def __init__(self, db_name: str="main.db", test_environment: bool=False):
         self.db_name = db_name
         self.test_environment = test_environment
+        self.db, self.cur = self.get_cursor()
         self.init_db()
 
     def init_db(self):
@@ -18,53 +19,54 @@ class db_manager:
         return db, db.cursor()
 
     def close_db(self):
-        db, cur = self.get_cursor()
-        db.close()
+        self.db.close()
 
     def create_tables(self):
-        db, cur = self.get_cursor()
-        cur.execute("""CREATE TABLE IF NOT EXISTS habit (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS habit (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             period INT NOT NULL,
             last_completed NOT NULL DEFAULT (DATE('now')),
             created_date TEXT NOT NULL DEFAULT (DATE('now')))""")
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS streak (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS streak (
             habit_id INTEGER PRIMARY KEY,
             longest_streak INTEGER NOT NULL DEFAULT 0,
             current_streak INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS completed (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS completed (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             habit_id INTEGER NOT NULL,
             completed_date TEXT NOT NULL DEFAULT (DATE('now')),
             FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
-        db.commit()
+        self.db.commit()
+        self.init_predefined_habits()
+
+    def init_predefined_habits(self):
+        pass
 
     def create_test_tables(self):
-        db, cur = self.get_cursor()
 
-        cur.execute("DROP TABLE IF EXISTS completed")
-        cur.execute("DROP TABLE IF EXISTS streak")
-        cur.execute("DROP TABLE IF EXISTS habit")
+        self.cur.execute("DROP TABLE IF EXISTS completed")
+        self.cur.execute("DROP TABLE IF EXISTS streak")
+        self.cur.execute("DROP TABLE IF EXISTS habit")
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS habit (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS habit (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             period INT NOT NULL,
             last_completed NOT NULL DEFAULT (DATE('now')),
             created_date TEXT NOT NULL DEFAULT (DATE('now')))""")
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS streak (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS streak (
             habit_id INTEGER PRIMARY KEY,
             longest_streak INTEGER NOT NULL DEFAULT 0,
             current_streak INTEGER NOT NULL DEFAULT 0,
             FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
-        cur.execute("""CREATE TABLE IF NOT EXISTS completed (
+        self.cur.execute("""CREATE TABLE IF NOT EXISTS completed (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             habit_id INTEGER NOT NULL,
             completed_date TEXT NOT NULL DEFAULT (DATE('now')),
@@ -72,13 +74,9 @@ class db_manager:
 
         today = datetime.today().date()
 
-        habits = [
-            (1, "Python programming", 1, -1, -29),
-            (2, "Shop groceries", 7, -8, -29),
-            (3, "Deepclean House", 30, -17, -29),
-        ]
+        habits = [(1, "Python programming", 1, -1, -29), (2, "Shop groceries", 7, -8, -29),(3, "Deepclean House", 30, -17, -29)]
 
-        cur.executemany(
+        self.cur.executemany(
             "INSERT INTO habit (id, name, period, last_completed, created_date) VALUES (?, ?, ?, ?, ?)",
             [(id, name, period,
               (today + timedelta(days=last_completed)).strftime('%Y-%m-%d'),
@@ -86,16 +84,9 @@ class db_manager:
              for id, name, period, last_completed, created in habits]
         )
 
-        streaks = [
-            (1, 5, 5),
-            (2, 3, 3),
-            (3, 1, 1),
-        ]
+        streaks = [(1, 5, 5), (2, 3, 3), (3, 1, 1),]
 
-        cur.executemany(
-            "INSERT INTO streak (habit_id, longest_streak, current_streak) VALUES (?, ?, ?)",
-            streaks
-        )
+        self.cur.executemany("INSERT INTO streak (habit_id, longest_streak, current_streak) VALUES (?, ?, ?)", streaks)
 
         completion_offsets = [
             (1, -29), (2, -25), (1, -28), (1, -26), (3, -25), (1, -24),
@@ -106,13 +97,9 @@ class db_manager:
             (1, -2), (1, -1),
         ]
 
-        completions = [(habit_id, (today + timedelta(days=offset)).strftime('%Y-%m-%d'))
-                       for habit_id, offset in completion_offsets]
+        completions = [(habit_id, (today + timedelta(days=offset)).strftime('%Y-%m-%d')) for habit_id, offset in completion_offsets]
 
-        cur.executemany(
-            "INSERT INTO completed (habit_id, completed_date) VALUES (?, ?)",
-            completions
-        )
+        self.cur.executemany("INSERT INTO completed (habit_id, completed_date) VALUES (?, ?)", completions)
 
-        db.commit()
-        db.close()
+        self.db.commit()
+        self.db.close()

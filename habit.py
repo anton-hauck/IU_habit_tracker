@@ -40,7 +40,10 @@ class Habit:
         days_since_last_completed = (last - created).days
         last_completed_period_cycle = days_since_last_completed // self.period
 
-        self.open = last_completed_period_cycle < current_period_cycle
+        if created == last:
+            self.open = True
+        else:
+            self.open = last_completed_period_cycle < current_period_cycle
 
         # is today past the last expected deadline for completion
         if last + timedelta(days=self.period) < datetime.today().date():

@@ -23,7 +23,7 @@ class habit_manager_class:
         self.db.commit()
         habit_id = self.cur.lastrowid
         last_completed = self.cur.execute("SELECT last_completed FROM habit WHERE id = ?", (habit_id,)).fetchone()[0]
-        self.habits.append(Habit(habit_id, name, period, last_completed))
+        self.habits.append(Habit(habit_id, name, period, last_completed, db_manager=self.db_manager))
         self.cur.execute("INSERT INTO streak (habit_id) VALUES (?)", (habit_id,))
         self.db.commit()
 
@@ -45,7 +45,7 @@ class habit_manager_class:
     def list_habits_by_periodically(self):
         return sorted(self.habits, key=lambda h: h.period)
 
-    def get_longest_streaks(self):
+    def list_longest_streaks(self):
         return list(map(lambda h: [h.name, h.get_longest_streak()], self.habits))
 
     def get_current_streaks(self):
