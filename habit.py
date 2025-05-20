@@ -1,4 +1,3 @@
-from db import db_manager
 from datetime import datetime, timedelta
 
 class Habit:

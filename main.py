@@ -1,5 +1,4 @@
 # starting the project, interaction with user inputs, printing the cli
-import habit
 import habit_manager
 import db
 import sys
@@ -52,6 +51,17 @@ def validate_name(input_text):
     else:
         return True
 
+def validate_period(input_text):
+    if input_text.startswith(" "):
+        return "Please do not start with a space."
+    elif input_text.strip() == "":
+        return "The habit period cannot be empty."
+    elif not input_text.isdigit():
+        return "Please enter a valid number (digits only)."
+    elif int(input_text) <= 0:
+        return "The period must be greater than 0."
+    return True
+
 
 def main():
     print("Welcome to Habit Manager!")
@@ -68,7 +78,7 @@ def main():
 
         if choice == "Show a list of open habits":
             for x in habit_manager_object.list_open_habits():
-                print(x.name)
+                print(" · " + x.name)
         elif choice == "Complete a habit":
             selected = ask_for_habit(habit_manager_object.list_habits())
             if questionary.confirm("Do you want to complete habit: " + selected.name).ask():
@@ -78,7 +88,16 @@ def main():
                 print("Canceled")
         elif choice == "Create a habit":
             name = questionary.text("Enter habit name",validate=validate_name).ask()
-            period = questionary.text("Enter habit period in days", validate=lambda val: val.isdigit() or "Please enter a valid number").ask()
+            period_choice = questionary.select("Please choose a period:", choices=["Daily", "Weekly", "Monthly", "Custom"]).ask()
+            period = None
+            if period_choice == "Custom":
+                period = questionary.text("Enter habit period in days", validate=validate_period).ask()
+            elif period_choice == "Daily":
+                period = 1
+            elif period_choice == "Weekly":
+                period = 7
+            elif period_choice == "Monthly":
+                period = 30
             if questionary.confirm("Do you want to create habit: " + name + " with the period: " + str(period)).ask():
                 habit_manager_object.create_habit(name, int(period))
                 print("Habit created")
@@ -103,17 +122,17 @@ def main():
             ).ask()
             if choice == "Show a list of all habits":
                 for x in habit_manager_object.list_habits():
-                    print(x.name)
+                    print(" · " + x.name)
             elif choice == "Show a list of all habits periodically sorted":
                 for x in habit_manager_object.list_habits_periodically():
-                    print(x.name + ": Period: " + format_days_to_text(x.period))
+                    print(" · " + x.name + ": Period: " + format_days_to_text(x.period))
             elif choice == "Show a list of all habits with the period X":
                 selected = ask_for_period(habit_manager_object.list_habits())
                 for x in habit_manager_object.show_list_of_habits_with_x_period(selected):
-                    print(x[1])
+                    print(" · " + x[1])
             elif choice == "Show a list of the longest streaks of all habits":
                 for x in habit_manager_object.list_longest_streaks():
-                    print(x[0] + ": Longest streak: " + str(x[1]))
+                    print(" · " + x[0] + ": Longest streak: " + str(x[1]))
             elif choice == "Show the longest streak of habit X":
                 selected = ask_for_habit(habit_manager_object.list_habits())
                 print(selected.name + ": Streak: " + str(next(x for x in habit_manager_object.habits if x.id == selected.id).get_longest_streak()))
