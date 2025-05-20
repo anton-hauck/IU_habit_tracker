@@ -1,5 +1,7 @@
 import sqlite3
 from datetime import datetime, timedelta
+import os
+
 
 class db_manager:
     def __init__(self, db_name: str="main.db", test_environment: bool=False):
@@ -19,6 +21,9 @@ class db_manager:
         return db, db.cursor()
 
     def close_db(self):
+        if self.test_environment:
+            os.remove("test.db")
+            print("-> Test database removed.")
         self.db.close()
 
     def create_tables(self):

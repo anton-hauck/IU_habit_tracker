@@ -39,11 +39,19 @@ class habit_manager_class:
     def list_habits(self):
         return self.habits
 
+    def get_habit_names(self):
+        rows = self.cur.execute("SELECT name FROM habit").fetchall()
+        return [row[0] for row in rows]
+
     def list_open_habits(self):
         return [habit for habit in self.habits if habit.open]
 
-    def list_habits_by_periodically(self):
+    def list_habits_periodically(self):
         return sorted(self.habits, key=lambda h: h.period)
+
+    def show_list_of_habits_with_x_period(self, period):
+        rows = self.cur.execute("SELECT * FROM habit WHERE period = ?", (period,)).fetchall()
+        return rows
 
     def list_longest_streaks(self):
         return list(map(lambda h: [h.name, h.get_longest_streak()], self.habits))
