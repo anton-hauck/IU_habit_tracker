@@ -48,6 +48,19 @@ class Habit:
         if last + timedelta(days=self.period) < datetime.today().date():
             self.broken()
 
+    # this function returns the due date of the habit. It is only called when a habit is open
+    def get_due_date(self):
+        created = datetime.strptime(self.cur.execute("SELECT created_date FROM habit WHERE id = ?", (self.id,)).fetchone()[0], "%Y-%m-%d").date()
+        last = datetime.strptime(self.cur.execute("SELECT last_completed FROM habit WHERE id = ?", (self.id,)).fetchone()[0],"%Y-%m-%d").date()
+
+        days_since_created = (datetime.today().date() - created).days
+        current_period_cycle = days_since_created // self.period
+
+        start_of_next_period_cycle = (current_period_cycle + 1) * self.period
+
+        return start_of_next_period_cycle - days_since_created - 1
+
+
     def get_current_streak(self):
         self.cur.execute("SELECT current_streak FROM streak WHERE habit_id = ?", (self.id,))
         self.db.commit()

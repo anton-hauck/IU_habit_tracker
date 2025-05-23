@@ -62,6 +62,16 @@ def validate_period(input_text):
         return "The period must be greater than 0."
     return True
 
+# helper function to rewrite due dates
+def rewrite_due_dates(days):
+    if days == 0:
+        return "due today"
+    if days == 1:
+        return "due tomorrow"
+    if days > 2:
+        return f"due in {days} days"
+
+
 
 def main():
     print("Welcome to Habit Manager!")
@@ -78,7 +88,7 @@ def main():
 
         if choice == "Show a list of open habits":
             for x in habit_manager_object.list_open_habits():
-                print(" · " + x.name)
+                print(" · " + x.name + " -> " + rewrite_due_dates(x.get_due_date()))
         elif choice == "Complete a habit":
             selected = ask_for_habit(habit_manager_object.list_habits())
             if questionary.confirm("Do you want to complete habit: " + selected.name).ask():
