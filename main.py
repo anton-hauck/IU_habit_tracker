@@ -1,18 +1,8 @@
-# starting the project, interaction with user inputs, printing the cli
 import habit_manager
 import db
 import sys
 import questionary
-import os
 
-# clear console on all os
-def clear_console():
-    # For Windows
-    if os.name == 'nt':
-        os.system('cls')
-    # For Unix/Linux/Mac
-    else:
-        os.system('clear')
 
 # helper function to ask for a habit from a habit list input
 def ask_for_habit(habit_list):
