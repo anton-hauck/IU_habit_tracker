@@ -121,33 +121,37 @@ def main():
             else:
                 print("Canceled")
         elif choice == "Analyze habits...":
-            choice = questionary.select(
-                "Please select an action:",
-                choices=["Show a list of all habits",
-                         "Show a list of all habits periodically sorted",
-                         "Show a list of all habits with the period X",
-                         "Show a list of the longest streaks of all habits",
-                         "Show the longest streak of habit X",
-                         "- Back to main menu"],
-            ).ask()
-            if choice == "Show a list of all habits":
-                for x in habit_manager_object.list_habits():
-                    print(" · " + x.name)
-            elif choice == "Show a list of all habits periodically sorted":
-                for x in habit_manager_object.list_habits_periodically():
-                    print(" · " + x.name + ": Period: " + format_days_to_text(x.period))
-            elif choice == "Show a list of all habits with the period X":
-                selected = ask_for_period(habit_manager_object.list_habits())
-                for x in habit_manager_object.show_list_of_habits_with_x_period(selected):
-                    print(" · " + x[1])
-            elif choice == "Show a list of the longest streaks of all habits":
-                for x in habit_manager_object.list_longest_streaks():
-                    print(" · " + x[0] + ": Longest streak: " + str(x[1]))
-            elif choice == "Show the longest streak of habit X":
-                selected = ask_for_habit(habit_manager_object.list_habits())
-                print(selected.name + ": Streak: " + str(next(x for x in habit_manager_object.habits if x.id == selected.id).get_longest_streak()))
-            elif choice == "- Back to main menu":
-                pass
+            analyze_submenu = True
+            while analyze_submenu:
+                choice = questionary.select(
+                    "Please select an action:",
+                    choices=["Show a list of all habits",
+                             "Show a list of all habits periodically sorted",
+                             "Show a list of all habits with the period X",
+                             "Show a list of the longest streaks of all habits",
+                             "Show the longest streak of habit X",
+                             "- Back to main menu"],
+                ).ask()
+                if choice == "Show a list of all habits":
+                    for x in habit_manager_object.list_habits():
+                        print(" · " + x.name)
+                elif choice == "Show a list of all habits periodically sorted":
+                    for x in habit_manager_object.list_habits_periodically():
+                        print(" · " + x.name + ": Period: " + format_days_to_text(x.period))
+                elif choice == "Show a list of all habits with the period X":
+                    selected = ask_for_period(habit_manager_object.list_habits())
+                    for x in habit_manager_object.show_list_of_habits_with_x_period(selected):
+                        print(" · " + x[1])
+                elif choice == "Show a list of the longest streaks of all habits":
+                    for x in habit_manager_object.list_longest_streaks():
+                        print(" · " + x[0] + ": Longest streak: " + str(x[1]))
+                elif choice == "Show the longest streak of habit X":
+                    selected = ask_for_habit(habit_manager_object.list_habits())
+                    print(selected.name + ": Streak: " + str(next(x for x in habit_manager_object.habits if x.id == selected.id).get_longest_streak()))
+                elif choice == "- Back to main menu":
+                    analyze_submenu = False
+                else:
+                    print("Sorry, I don't understand that. Please try again.")
         elif choice == "- Exit":
             print("Now exiting...")
             habit_manager_object.close_db()
