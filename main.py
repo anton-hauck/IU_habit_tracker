@@ -66,9 +66,9 @@ def validate_period(input_text):
 def rewrite_due_dates(days):
     if days == 0:
         return "due today"
-    if days == 1:
+    elif days == 1:
         return "due tomorrow"
-    if days > 2:
+    else:
         return f"due in {days} days"
 
 
@@ -128,6 +128,7 @@ def main():
                     choices=["Show a list of all habits",
                              "Show a list of all habits periodically sorted",
                              "Show a list of all habits with the period X",
+                             "Show a list of all current streaks",
                              "Show a list of the longest streaks of all habits",
                              "Show the longest streak of habit X",
                              "- Back to main menu"],
@@ -142,6 +143,9 @@ def main():
                     selected = ask_for_period(habit_manager_object.list_habits())
                     for x in habit_manager_object.show_list_of_habits_with_x_period(selected):
                         print(" · " + x[1])
+                elif choice == "Show a list of all current streaks":
+                    for x in habit_manager_object.get_current_streaks():
+                        print(" · " + x[0] + ": Current Streak: " + str(x[1]))
                 elif choice == "Show a list of the longest streaks of all habits":
                     for x in habit_manager_object.list_longest_streaks():
                         print(" · " + x[0] + ": Longest streak: " + str(x[1]))

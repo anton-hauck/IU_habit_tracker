@@ -79,11 +79,11 @@ class db_manager:
         today = datetime.today().date()
 
         habits = [
-            (1, "Python programming", 1, -1, -29),
-            (2, "Shop groceries", 7, -8, -29),
-            (3, "Deepclean House", 30, -7, -29),
-            (4, "Sport", 3, -2, -29),
-            (5, "Practice piano", 2, -2, -29),
+            (1, "Python programming", 1, -1, -30),
+            (2, "Shop groceries", 7, -8, -30),
+            (3, "Deepclean House", 30, -7, -30),
+            (4, "Sport", 3, -2, -30),
+            (5, "Practice piano", 2, -2, -30),
         ]
 
         self.cur.executemany(
@@ -106,7 +106,7 @@ class db_manager:
             (2, -11), (4, -11), (1, -11), (5, -11), (2, -11), (5, -10), (1, -10), (1, -10),
             (1, -9), (1, -8), (5, -8), (4, -8), (2, -8), (1, -7), (4, -7), (2, -7), (1, -6),
             (5, -6), (1, -5), (1, -5), (1, -5), (1, -4), (4, -4), (5, -4), (1, -3), (4, -3),
-            (1, -3), (5, -2), (1, -2), (4, -2), (1, -1)
+            (1, -3), (1, -2), (4, -2), (1, -1)
         ]
 
         completions = [
@@ -115,30 +115,13 @@ class db_manager:
         ]
         self.cur.executemany("INSERT INTO completed (habit_id, completed_date) VALUES (?, ?)", completions)
 
-        # Calculate streaks
-        streaks = []
-        for habit_id, name, period, _, created_offset in habits:
-            created_date = today + timedelta(days=created_offset)
-            period_starts = [created_date + timedelta(days=i * period) for i in
-                             range((today - created_date).days // period + 1)]
-            completed_dates = set(
-                datetime.strptime(date, "%Y-%m-%d").date()
-                for (h_id, date) in completions if h_id == habit_id
-            )
-
-            current_streak = 0
-            longest_streak = 0
-
-            for start in period_starts:
-                end = start + timedelta(days=period)
-                completed = any(start <= d < end for d in completed_dates)
-                if completed:
-                    current_streak += 1
-                    longest_streak = max(longest_streak, current_streak)
-                else:
-                    current_streak = 0
-
-            streaks.append((habit_id, longest_streak, current_streak))
+        streaks = [
+            (1, 18, 18),
+            (2, 4, 4),
+            (3, 1, 1),
+            (4, 7, 7),
+            (5, 7, 0),
+        ]
 
         self.cur.executemany("INSERT INTO streak (habit_id, longest_streak, current_streak) VALUES (?, ?, ?)", streaks)
 
