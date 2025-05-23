@@ -2,15 +2,27 @@ import habit_manager
 import db
 import sys
 import questionary
+"""
+Initialises the habit tracker program. Either in Test-Mode or normally.
+The action is handled via a Command Line Interface (CLI).
+"""
 
-
-# helper function to ask for a habit from a habit list input
 def ask_for_habit(habit_list):
+    """
+    Helper function to ask for a habit from a habit list input
+    :param habit_list: List of habits
+    :return: Selected habit
+    """
     choices = [questionary.Choice(title=x.name, value=x) for x in habit_list]
     return questionary.select("Please select a habit:", choices=choices).ask()
 
-# helper function to ask for a period from a habit list input
 def ask_for_period(habit_list):
+    """
+    Helper function to ask for a period from a habit list input
+    Makes sure periods are listed distinct
+    :param habit_list: List of habits
+    :return: Selected period
+    """
     seen = set()
     choices = []
     for habit in habit_list:
@@ -19,8 +31,12 @@ def ask_for_period(habit_list):
             choices.append(questionary.Choice(title=format_days_to_text(habit.period), value=habit.period))
     return questionary.select("Please select a period:", choices=choices).ask()
 
-# helper function to display periods in a more convenient way, as days, weeks and months
 def format_days_to_text(period):
+    """
+    Helper function to display periods in a more convenient way, as days, weeks and months
+    :param period: Period in days
+    :return: Daily, Weekly, Monthly or X days
+    """
     if period == 1:
         return "Daily"
     elif period == 7:
@@ -30,8 +46,14 @@ def format_days_to_text(period):
     else:
         return f"{period} days"
 
-# helper function to validate the name when creating a habit
+
 def validate_name(input_text):
+    """
+    Helper function to validate the name when creating a habit.
+    Checks for leading space, empty space and already taken names
+    :param input_text: Input text
+    :return: True if valid, Warning Text otherwise
+    """
     if input_text.startswith(" "):
         return "Please do not start with a space"
     elif input_text.strip() == "":
@@ -42,6 +64,12 @@ def validate_name(input_text):
         return True
 
 def validate_period(input_text):
+    """
+    Helper function to validate the period when creating a habit.
+    Checks for leading space, empty space, character input and negative numbers
+    :param input_text: Input text
+    :return: True if valid, Warning Text otherwise
+    """
     if input_text.startswith(" "):
         return "Please do not start with a space."
     elif input_text.strip() == "":
@@ -52,8 +80,12 @@ def validate_period(input_text):
         return "The period must be greater than 0."
     return True
 
-# helper function to rewrite due dates
 def rewrite_due_dates(days):
+    """
+    Helper function to rewrite due dates
+    :param days: Input days
+    :return: Text fitting the due dates
+    """
     if days == 0:
         return "due today"
     elif days == 1:
@@ -64,6 +96,11 @@ def rewrite_due_dates(days):
 
 
 def main():
+    """
+    Main function that uses questionary to display the CLI.
+    A infinite loop keeps the program running until the user explicitly chooses to exit.
+    Helper functions are used to display the contents in a convenient way for the user.
+    """
     print("Welcome to Habit Manager!")
     while True:
         choice = questionary.select(
@@ -76,6 +113,8 @@ def main():
                      "- Exit"],
         ).ask()
 
+
+        # Handles the selected menu point from the CLI and calls the appropriate functions.
         if choice == "Show a list of open habits":
             for x in habit_manager_object.list_open_habits():
                 print(" · " + x.name + " -> " + rewrite_due_dates(x.get_due_date()))
@@ -132,7 +171,7 @@ def main():
                 elif choice == "Show a list of all habits with the period X":
                     selected = ask_for_period(habit_manager_object.list_habits())
                     for x in habit_manager_object.show_list_of_habits_with_x_period(selected):
-                        print(" · " + x[1])
+                        print(" · " + x.name)
                 elif choice == "Show a list of all current streaks":
                     for x in habit_manager_object.get_current_streaks():
                         print(" · " + x[0] + ": Current Streak: " + str(x[1]))
@@ -158,6 +197,10 @@ def main():
 
 
 if __name__ == '__main__':
+    """
+    Starts the program by initialising the database and habit manager class.
+    If prompted runs the program in the test environment.
+    """
     if len(sys.argv) > 1 and sys.argv[1] == "--test":
         db_manager = db.db_manager("test.db", test_environment=True)
         habit_manager_object = habit_manager.habit_manager_class(db_manager)
@@ -167,7 +210,6 @@ if __name__ == '__main__':
     else:
         db_manager = db.db_manager()
         # dependency injection of the database manager to the habit manager as an object.
-        # Now the database initialised in the db_manager class can be used across the habit_manager
-        # and habit class
+        # Now the database initialised in the db_manager class can be used across the habit_manager and habit class
         habit_manager_object = habit_manager.habit_manager_class(db_manager)
         main()

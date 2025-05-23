@@ -2,7 +2,10 @@ import sqlite3
 from datetime import datetime, timedelta
 import os
 
-
+"""
+A database class is used for the advantage to pass the object 
+via dependency injection into other class objects whenever needed.
+"""
 class db_manager:
     def __init__(self, db_name: str="main.db", test_environment: bool=False):
         self.db_name = db_name
@@ -11,22 +14,39 @@ class db_manager:
         self.init_db()
 
     def init_db(self):
+        """
+        Initializes the database with either test or production tables.
+        This separation ensures that test runs do not interfere with real data.
+        """
         if self.test_environment:
             self.create_test_tables()
         else:
             self.create_tables()
 
     def get_cursor(self):
+        """
+        Opens a connection to the SQLite database and returns the cursor.
+        Using a single connection ensures consistent access throughout the app.
+        :return: db, db.cursor()
+        """
         db = sqlite3.connect(self.db_name)
         return db, db.cursor()
 
     def close_db(self):
+        """
+        Closes the database connection and deletes the test database if in test mode.
+        Ensures that the test database is does not pollute the normal environment.
+        """
         if self.test_environment:
             os.remove("test.db")
             print("-> Test database removed.")
         self.db.close()
 
     def create_tables(self):
+        """
+        Creates the necessary tables for habits, streaks, and completions if they do not exist.
+        The schema is designed to normalize data and minimize redundancy.
+        """
         self.cur.execute("""CREATE TABLE IF NOT EXISTS habit (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -47,15 +67,18 @@ class db_manager:
             FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
         self.db.commit()
-        self.init_predefined_habits()
-
-    def init_predefined_habits(self):
-        pass
 
     def create_test_tables(self):
-        self.cur.execute("DROP TABLE IF EXISTS completed")
-        self.cur.execute("DROP TABLE IF EXISTS streak")
-        self.cur.execute("DROP TABLE IF EXISTS habit")
+        """
+        Initializes the necessary tables for habits, streaks, and completions for the test environment.
+        For double safety the tables are also dropped first if there happens to already exist a test.db
+        Habits, streaks and completions are hardcoded for consistent test purposes.
+        The dates are calculated based on the current date, to ensure functionality while testing the application.
+        """
+        if os.path.exists("test.db"):
+            self.cur.execute("DROP TABLE IF EXISTS completed")
+            self.cur.execute("DROP TABLE IF EXISTS streak")
+            self.cur.execute("DROP TABLE IF EXISTS habit")
 
         self.cur.execute("""CREATE TABLE IF NOT EXISTS habit (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -77,7 +100,7 @@ class db_manager:
             FOREIGN KEY (habit_id) REFERENCES habit(id))""")
 
         today = datetime.today().date()
-
+        # Insert habits
         habits = [
             (1, "Python programming", 1, -1, -30),
             (2, "Shop groceries", 7, -8, -30),
@@ -109,6 +132,7 @@ class db_manager:
             (1, -3), (1, -2), (4, -2), (1, -1)
         ]
 
+        # Insert completitions
         completions = [
             (habit_id, (today + timedelta(days=offset)).strftime('%Y-%m-%d'))
             for habit_id, offset in raw_completions
